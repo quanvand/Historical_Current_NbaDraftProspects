@@ -1,0 +1,66 @@
+<div class="profile-card">
+    <div class="profile-left">
+        <canvas id="radarChart" class="profile-image" ></canvas>      
+        <h2 class="profile-name">{{ record.name }}</h2>
+      <p class="profile-role">{{ record.playstyle }}</p>
+    </div>
+    <div class="profile-right">
+      <!--<h3 class="profile-details-title">Profile</h3>-->
+      <ul class="profile-details-list">
+        <li style="font-size: 20px; text-decoration: underline;"><strong style="color:#00aaff;">Bio</strong></li>
+        <li><strong>School:</strong> {{ record.school }}</li>
+        <li><strong>Class:</strong> {{ record.class }}</li>        
+        <li><strong>HS Rank:</strong> {{ record['rec rank'] }}</li>
+        <li><strong>Drafted #:</strong> {{ record['drafted #'] }}</li>
+        <li><strong>Position:</strong> {{ record['position 1'] }}</li>
+        <li><strong>Height:</strong> {{ record.height }}</li>
+        <li><strong>Wingspan:</strong> {{ record.wingspan }}</li>
+        <li><strong>Weight:</strong> {{ record.weight }}</li>
+      </ul>
+      
+      <ul class="profile-details-list">
+        <li style="font-size: 20px; text-decoration: underline;"><strong style="color:#00aaff;">Basic</strong></li>
+        <li><strong>PTS:</strong> {{ record.pts}}</li>
+        <li><strong>REB:</strong> {{ record.trb}}</li>        
+        <li><strong>AST:</strong> {{ record.ast}}</li>
+        <li><strong>STL:</strong> {{ record.stl}}</li>
+        <li><strong>BLK:</strong> {{ record.blk}}</li> 
+        <li><strong>STOPS:</strong> {{ record['stops per game'] }}</li>       
+        <li><strong>3PM:</strong> {{ record['3pm per game'] }}</li>      
+      </ul>
+
+      <ul class="profile-details-list">
+        <li style="font-size: 20px; text-decoration: underline;"><strong style="color:#00aaff;">Per 40</strong></li>
+        <li><strong>PTS:</strong> {{ record['pts 40'] }}</li>
+        <li><strong>REB:</strong> {{ record['treb 40']}}</li>        
+        <li><strong>AST:</strong> {{ record['ast 40']}}</li>
+        <li><strong>STL:</strong> {{ record['stl 40'] }}</li>
+        <li><strong>BLK:</strong> {{ record['blk 40'] }}</li> 
+        <li><strong>STOPS:</strong> {{ record['stops 40'] }}</li>       
+        <li><strong>3PM:</strong> {{ record['3pm 40'] }}</li>      
+      </ul>
+
+      <ul class="profile-details-list">
+        <li style="font-size: 20px; text-decoration: underline;"><strong style="color:#00aaff;">Percentile</strong></li>
+        <li><strong>FTR:</strong> {{ record['ftr percentile'] }}</li>
+        <li><strong>3PM:</strong> {{ record['3pm 40 percentile'] }}</li>
+        <li><strong>Mid:</strong> {{ record['mid 40 percentile'] }}</li>
+        <li><strong>Close Shot:</strong> {{ record['close shot 40 percentile'] }}</li>
+        <li><strong>Dunks:</strong> {{ record['dunks 40 percentile'] }}</li>
+        <li><strong>TS%:</strong> {{ record['ts percentile'] }}</li>
+        <li><strong>eFG%:</strong> {{ record['efg percentile'] }}</li>
+        <li><strong>Usg%:</strong> {{ record['usg percentile'] }}</li>
+      </ul>
+
+      <ul class="profile-details-list">
+        <li style="font-size: 20px; text-decoration: underline;"><strong style="color:#00aaff;">Misc</strong></li>
+        <li><strong>Dbl Dbl:</strong> {{ record['dbl dbl']}}</li>
+        <li><strong>Tpl Dbl:</strong> {{ record['tpl dbl']}}</li>
+        <li><strong># 40 Pts:</strong> {{ record['40 pts']}}</li>
+        <li><strong># 20 Reb:</strong> {{ record['20 reb']}}</li>
+        <li><strong># 20 Ast:</strong> {{ record['20 ast']}}</li>     
+      </ul>
+    </div>
+
+</div>
+  

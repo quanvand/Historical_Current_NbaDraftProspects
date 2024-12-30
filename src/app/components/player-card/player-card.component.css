@@ -1,0 +1,82 @@
+/* Container */
+.profile-card {
+    display: flex; /* Use flexbox */
+    flex-direction: row; /* Align sections horizontally */
+    align-items: stretch;
+    background-color: #1a1a2e; /* Dark background */
+    color: white; /* White text */
+    padding: 15px;
+    border-radius: 15px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    width: 95%; /* Full width */
+    height: 200px;
+    margin: 5px auto;
+    gap: 20px; /* Add spacing between sections */
+  }
+
+  .profile-image {
+    max-height: 80%; /* Scale image to fit inside container */
+    max-width: 100%; /* Prevent image from overflowing */
+    object-fit: contain; /* Ensure proper scaling */
+    margin: auto;
+    width: 380px;
+    height:200px;
+  }
+  
+  
+  /* Left Section */
+  .profile-left {
+    flex: 1; /* Allow this section to scale proportionally */
+    display: flex; /* Ensure content inside scales properly */
+    flex-direction: column; /* Stack elements vertically */
+    justify-content: center; /* Center content vertically */
+    align-items: center; /* Center content horizontally */
+  }
+  .profile-name {
+    font-size: 18px; /* Adjust font size */
+    font-weight: bold;
+    margin: -5px 0;
+  }
+  
+  .profile-role {
+    font-size: 10px; /* Smaller font */
+    color: #b0b0b0;
+  }
+  
+  /* Right Section */
+  .profile-right {
+    flex: 3; /* Take up 3/4 of the width */
+    display: flex; /* Use flexbox for internal layout */
+    flex-wrap: wrap; /* Allow ul elements to wrap */
+    max-height:100%;
+  }
+
+  
+  
+  .profile-details-title {
+    width: 100%; /* Make the title span the full width */
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    margin-top: 0px;
+    color: #00aaff;
+    text-transform: uppercase;
+  }
+  
+  /* Individual Lists */
+  .profile-details-list {
+    flex: 1; /* Each ul takes equal space */
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .profile-details-list li {
+    font-size: 11px;
+    margin-bottom: 8px;
+  }
+  
+  .profile-details-list li strong {
+    color: #ffd700; /* Golden text */
+  }
+  

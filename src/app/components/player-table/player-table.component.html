@@ -1,0 +1,834 @@
+<!--<div class="card">
+  <app-player-card *ngIf="selectedPlayerCard" [record]="selectedPlayerCard"></app-player-card>
+</div>-->
+<div class="card">
+  <div class="search-container">
+    <app-search (searchTerm)="onSearchTermChange($event)"></app-search>
+  </div>
+  <hr class="divider">
+  
+
+  <div class="card-header">   
+    <div style="margin-right:5px;">Total Players: {{ playersCount }}</div>
+    
+    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 10px;">
+      <!-- Metrics -->
+      <div style="display: flex; align-items: center;">
+        <label for="view-mode-select" style="font-weight: bold; margin-right: 5px;">Metrics:</label>
+        <select
+          id="view-mode-select"
+          style="height: 30px; vertical-align: middle;"
+          [(ngModel)]="selectedViewMode"
+          (change)="onViewModeChange(selectedViewMode)">
+          <option *ngFor="let mode of viewModes" [value]="mode">{{ mode }}</option>
+        </select>
+      </div>
+    
+      <!-- Season Filter -->
+      <div class="dropdown-container" style="display: flex; align-items: center;">
+        <label for="seasonFilter" style="font-weight: bold; margin-right: 5px;">Season:</label>
+        <div class="dropdown">
+          <div style="display: flex;">
+            <button
+              type="button"
+              style="font-size: 9px;"
+              class="dropdown-toggle"
+              (click)="toggleDropdown()">
+              Select
+            </button>
+          </div>
+          <div class="dropdown-menu" *ngIf="isDropdownOpen">
+            <!-- Select All -->
+            <div class="dropdown-item">
+              <input type="checkbox" [checked]="isAllSelected" (change)="toggleSelectAll($event)" />
+              <label>Select All</label>
+            </div>
+            <hr />
+            <!-- Individual Checkboxes -->
+            <div *ngFor="let season of seasons" class="dropdown-item">
+              <input
+                type="checkbox"
+                [value]="season"
+                [checked]="seasonFilter.includes(season)"
+                (change)="toggleSeason(season, $event)" />
+              <label>{{ season }}</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <!-- Position Filter -->
+      <div class="dropdown-container" style="display: flex; align-items: center;">
+        <label for="positionsFilter" style="font-weight: bold; margin-right: 5px;">Position:</label>
+        <div class="dropdown">
+          <div style="display: flex;">
+            <button
+              type="button"
+              style="font-size: 9px;"
+              class="dropdown-toggle"
+              (click)="togglePositionsDropdown()">
+              Select
+            </button>
+          </div>
+          <div class="dropdown-menu" *ngIf="isPositionsDropdownOpen">
+            <!-- Select All -->
+            <div class="dropdown-item">
+              <input
+                type="checkbox"
+                [checked]="isPositionsAllSelected"
+                (change)="togglePositionsSelectAll($event)" />
+              <label>Select All</label>
+            </div>
+            <hr />
+            <!-- Individual Checkboxes -->
+            <div *ngFor="let position of positions" class="dropdown-item">
+              <input
+                type="checkbox"
+                [value]="position"
+                [checked]="positionsFilter.includes(position)"
+                (change)="togglePosition(position, $event)" />
+              <label>{{ position }}</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+       <!-- Class Filter -->
+      <div class="dropdown-container" style="display: flex; align-items: center;">
+        <label for="classFilter" style="font-weight: bold; margin-right: 5px;">Class:</label>
+        <div class="dropdown">
+          <div style="display: flex;">
+            <button
+              type="button"
+              style="font-size: 9px;"
+              class="dropdown-toggle"
+              (click)="toggleClassDropdown()">
+              Select
+            </button>
+          </div>
+          <div class="dropdown-menu" *ngIf="isClassDropdownOpen">
+            <!-- Select All -->
+            <div class="dropdown-item">
+              <input
+                type="checkbox"
+                [checked]="isClassAllSelected"
+                (change)="toggleClassSelectAll($event)" />
+              <label>Select All</label>
+            </div>
+            <hr />
+            <!-- Individual Checkboxes -->
+            <div *ngFor="let class of classes" class="dropdown-item">
+              <input
+                type="checkbox"
+                [value]="class"
+                [checked]="classFilter.includes(class)"
+                (change)="toggleClass(class, $event)" />
+              <label>{{ class }}</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+   
+    
+    
+
+
+
+
+
+  </div>
+
+  <div class="card-header">
+    <button (click)="clearSorting()">Clear Sorting</button>
+    <button (click)="clearComparePlayer()">Clear Comparison</button>
+  </div>
+
+  <app-player-card *ngIf="selectedPlayerCard" [record]="selectedPlayerCard"></app-player-card>
+  
+  <div *ngIf="isLoading" class="spinner-overlay">
+    <div class="spinner"></div>
+  </div>
+
+  <div class="card-content">
+    <div class="fixTableHead"  [ngClass]="{ 'freeze-first-row': isComparingPlayers }">
+      <table>
+        <thead>    
+          <tr>
+            <th>Name</th>    
+            <th>Position</th>
+            <th>Playstyle</th>
+            <th (click)="sortBy('season')">Season                       
+              <span  *ngIf="sortKey === 'season'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'season'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th>Class</th>
+            <th (click)="sortBy('height')">Height                       
+              <span  *ngIf="sortKey === 'height'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'height'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('wingspan')">W/S                       
+              <span  *ngIf="sortKey === 'wingspan'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'wingspan'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('max vertical leap (inches)')">Vert                       
+              <span  *ngIf="sortKey === 'max vertical leap (inches)'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'max vertical leap (inches)'" class="clickable arrow-icon">▼</span>
+            </th>
+
+            <th (click)="sortBy('drafted #')" >Drafted #                       
+              <span  *ngIf="sortKey === 'drafted #'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'drafted #'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th *ngIf="selectedViewMode === 'Basic' || selectedViewMode === 'Advance' || selectedViewMode === 'Percentile' || selectedViewMode === 'Rating'">GP</th>
+            <th *ngIf="selectedViewMode === 'Basic' || selectedViewMode === 'Advance' || selectedViewMode === 'Percentile' || selectedViewMode === 'Rating'">MP</th>           
+            <th (click)="sortBy('pts')"  *ngIf="selectedViewMode === 'Basic'">PPG                       
+              <span  *ngIf="sortKey === 'pts'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'pts'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('trb')"  *ngIf="selectedViewMode === 'Basic'">RPG                       
+              <span  *ngIf="sortKey === 'trb'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'trb'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('ast')"  *ngIf="selectedViewMode === 'Basic'">APG                       
+              <span  *ngIf="sortKey === 'ast'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'ast'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('ast/tov')"  *ngIf="selectedViewMode === 'Basic'">AST/TO                       
+              <span  *ngIf="sortKey === 'ast/tov'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'ast/tov'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('stl')"  *ngIf="selectedViewMode === 'Basic'">SPG                       
+              <span  *ngIf="sortKey === 'stl'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'stl'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('blk')"  *ngIf="selectedViewMode === 'Basic'">BPG                       
+              <span  *ngIf="sortKey === 'blk'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'blk'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('stops per game')"  *ngIf="selectedViewMode === 'Basic'">STOPPG                       
+              <span  *ngIf="sortKey === 'stops per game'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'stops per game'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('fg%')"  *ngIf="selectedViewMode === 'Basic'">FG%                       
+              <span  *ngIf="sortKey === 'fg%'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'fg%'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('3fg%')"  *ngIf="selectedViewMode === 'Basic'">3 FG%                       
+              <span  *ngIf="sortKey === '3fg%'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== '3fg%'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('mid fg%')"  *ngIf="selectedViewMode === 'Basic'">Mid FG%                       
+              <span  *ngIf="sortKey === 'mid fg%'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'mid fg%'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('ft%')"  *ngIf="selectedViewMode === 'Basic'">FT%                       
+              <span  *ngIf="sortKey === 'ft%'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'ft%'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('3pm per game')"  *ngIf="selectedViewMode === 'Basic'">3PM                      
+              <span  *ngIf="sortKey === '3pm per game'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== '3pm per game'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('mid per game')"  *ngIf="selectedViewMode === 'Basic'">MidM                       
+              <span  *ngIf="sortKey === 'mid per game'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'mid per game'" class="clickable arrow-icon">▼</span>
+            </th>
+
+            <th (click)="sortBy('# dunks')"  *ngIf="selectedViewMode === 'Basic'"># Dunks                       
+              <span  *ngIf="sortKey === '# dunks'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== '# dunks'" class="clickable arrow-icon">▼</span>
+            </th>
+
+            <th (click)="sortBy('dbl dbl')"  *ngIf="selectedViewMode === 'Basic'">Dbl Dbl                       
+              <span  *ngIf="sortKey === 'dbl dbl'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'dbl dbl'" class="clickable arrow-icon">▼</span>
+            </th>
+
+            <th (click)="sortBy('tpl dbl')"  *ngIf="selectedViewMode === 'Basic'">Tpl Dbl                       
+              <span  *ngIf="sortKey === 'tpl dbl'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'tpl dbl'" class="clickable arrow-icon">▼</span>
+            </th>
+
+            <th (click)="sortBy('40 pts')"  *ngIf="selectedViewMode === 'Basic'"># 40 Pts                       
+              <span  *ngIf="sortKey === '40 pts'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== '40 pts'" class="clickable arrow-icon">▼</span>
+            </th>
+
+            <th (click)="sortBy('20 reb')"  *ngIf="selectedViewMode === 'Basic'"># 20 Rebs                       
+              <span  *ngIf="sortKey === '20 reb'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== '20 reb'" class="clickable arrow-icon">▼</span>
+            </th>
+
+            <th (click)="sortBy('20 ast')"  *ngIf="selectedViewMode === 'Basic'"># 20 Ast                       
+              <span  *ngIf="sortKey === '20 ast'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== '20 ast'" class="clickable arrow-icon">▼</span>
+            </th>
+
+            <!-- Advanced -->
+
+            <th (click)="sortBy('ts%')"  *ngIf="selectedViewMode === 'Advance'">TS%                       
+              <span  *ngIf="sortKey === 'ts%'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'ts%'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('efg%')"  *ngIf="selectedViewMode === 'Advance'">EFG%                       
+              <span  *ngIf="sortKey === 'efg%'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'efg%'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('off rtg')"  *ngIf="selectedViewMode === 'Advance'">OFF RTG                    
+              <span  *ngIf="sortKey === 'off rtg'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'off rtg'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('def rtg')"  *ngIf="selectedViewMode === 'Advance'">DEF RTG                       
+              <span  *ngIf="sortKey === 'def rtg'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'def rtg'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('obpm')"  *ngIf="selectedViewMode === 'Advance'">OBPM                     
+              <span  *ngIf="sortKey === 'obpm'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'obpm'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('dbpm')"  *ngIf="selectedViewMode === 'Advance'">DBPM                     
+              <span  *ngIf="sortKey === 'dbpm'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'dbpm'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('bpm')"  *ngIf="selectedViewMode === 'Advance'">BPM                     
+              <span  *ngIf="sortKey === 'bpm'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'bpm'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('per')"  *ngIf="selectedViewMode === 'Advance'">PER                     
+              <span  *ngIf="sortKey === 'per'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'per'" class="clickable arrow-icon">▼</span>
+            </th>
+
+            <th (click)="sortBy('pts 40')"  *ngIf="selectedViewMode === 'Per 40'">PTS 40                     
+              <span  *ngIf="sortKey === 'pts 40'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'pts 40'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('treb 40')"  *ngIf="selectedViewMode === 'Per 40'">TREB 40                     
+              <span  *ngIf="sortKey === 'treb 40'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'treb 40'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('oreb 40')"  *ngIf="selectedViewMode === 'Per 40'">OREB 40                     
+              <span  *ngIf="sortKey === 'oreb 40'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'oreb 40'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('dreb 40')"  *ngIf="selectedViewMode === 'Per 40'">DREB 40                     
+              <span  *ngIf="sortKey === 'dreb 40'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'dreb 40'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('ast 40')"  *ngIf="selectedViewMode === 'Per 40'">AST 40                     
+              <span  *ngIf="sortKey === 'ast 40'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'ast 40'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('stl 40')"  *ngIf="selectedViewMode === 'Per 40'">STL 40                     
+              <span  *ngIf="sortKey === 'stl 40'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'stl 40'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('blk 40')"  *ngIf="selectedViewMode === 'Per 40'">BLK 40                     
+              <span  *ngIf="sortKey === 'blk 40'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'blk 40'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('stops 40')"  *ngIf="selectedViewMode === 'Per 40'">STOPS 40                     
+              <span  *ngIf="sortKey === 'stops 40'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'stops 40'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('3pm 40')"  *ngIf="selectedViewMode === 'Per 40'">3PM 40                     
+              <span  *ngIf="sortKey === '3pm 40'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== '3pm 40'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('mid made 40')"  *ngIf="selectedViewMode === 'Per 40'">MID MADE 40                     
+              <span  *ngIf="sortKey === 'mid made 40'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'mid made 40'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('close shot 40')"  *ngIf="selectedViewMode === 'Per 40'">CLOSE SHOT 40                     
+              <span  *ngIf="sortKey === 'close shot 40'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'close shot 40'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('dunks 40')"  *ngIf="selectedViewMode === 'Per 40'">DUNKS 40                     
+              <span  *ngIf="sortKey === 'dunks 40'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'dunks 40'" class="clickable arrow-icon">▼</span>
+            </th>
+
+            <!-- Percentile -->
+            
+            <th (click)="sortBy('bpm percentile')"  *ngIf="selectedViewMode === 'Percentile'">BPM                     
+              <span  *ngIf="sortKey === 'bpm percentile'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'bpm percentile'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('ts percentile')"  *ngIf="selectedViewMode === 'Percentile'">TS%                     
+              <span  *ngIf="sortKey === 'ts percentile'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'ts percentile'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('efg percentile')"  *ngIf="selectedViewMode === 'Percentile'">EFG%                     
+              <span  *ngIf="sortKey === 'efg percentile'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'efg percentile'" class="clickable arrow-icon">▼</span>
+            </th>        
+            <th (click)="sortBy('off rating percentile')"  *ngIf="selectedViewMode === 'Percentile'">OFF RTG                     
+              <span  *ngIf="sortKey === 'off rating percentile'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'off rating percentile'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('def rating percentile')"  *ngIf="selectedViewMode === 'Percentile'">DEF RTG                     
+              <span  *ngIf="sortKey === 'def rating percentile'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'def rating percentile'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('usg percentile')"  *ngIf="selectedViewMode === 'Percentile'">USG                     
+              <span  *ngIf="sortKey === 'usg percentile'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'usg percentile'" class="clickable arrow-icon">▼</span>
+            </th>
+
+            <th (click)="sortBy('points 40 percentile')"  *ngIf="selectedViewMode === 'Percentile'">PPG                     
+              <span  *ngIf="sortKey === 'points 40 percentile'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'points 40 percentile'" class="clickable arrow-icon">▼</span>
+            </th>
+
+            <th (click)="sortBy('o reb 40 percentile')"  *ngIf="selectedViewMode === 'Percentile'">OREB Per                     
+              <span  *ngIf="sortKey === 'o reb 40 percentile'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'o reb 40 percentile'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('d reb 40 percentile')"  *ngIf="selectedViewMode === 'Percentile'">DREB Per                     
+              <span  *ngIf="sortKey === 'd reb 40 percentile'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'd reb 40 percentile'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('assist 40 percentile')"  *ngIf="selectedViewMode === 'Percentile'">AST Per                     
+              <span  *ngIf="sortKey === 'assist 40 percentile'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'assist 40 percentile'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('to percentile')"  *ngIf="selectedViewMode === 'Percentile'">TO Per                     
+              <span  *ngIf="sortKey === 'to percentile'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'to percentile'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('steal 40 percentile')"  *ngIf="selectedViewMode === 'Percentile'">STL Per                     
+              <span  *ngIf="sortKey === 'steal 40 percentile'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'steal 40 percentile'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('block 40 percentile')"  *ngIf="selectedViewMode === 'Percentile'">BLK Per                     
+              <span  *ngIf="sortKey === 'block 40 percentile'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'block 40 percentile'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('stops 40 percentile')"  *ngIf="selectedViewMode === 'Percentile'">Stops                
+              <span  *ngIf="sortKey === 'stops 40 percentile'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'stops 40 percentile'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('ftr percentile')"  *ngIf="selectedViewMode === 'Percentile'">FTR Per                     
+              <span  *ngIf="sortKey === 'ftr percentile'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'ftr percentile'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('3pm 40 percentile')"  *ngIf="selectedViewMode === 'Percentile'">3PM Per                     
+              <span  *ngIf="sortKey === '3pm 40 percentile'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== '3pm 40 percentile'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('mid 40 percentile')"  *ngIf="selectedViewMode === 'Percentile'">Mid M Per                     
+              <span  *ngIf="sortKey === 'mid 40 percentile'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'mid 40 percentile'" class="clickable arrow-icon">▼</span>
+            </th>           
+            <th (click)="sortBy('close shot 40 percentile')"  *ngIf="selectedViewMode === 'Percentile'">Close M Per                     
+              <span  *ngIf="sortKey === 'close shot 40 percentile'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'close shot 40 percentile'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('dunks 40 percentile')"  *ngIf="selectedViewMode === 'Percentile'">Dunks Per                     
+              <span  *ngIf="sortKey === 'dunks 40 percentile'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'dunks 40 percentile'" class="clickable arrow-icon">▼</span>
+            </th>
+
+            <!-- Rating -->
+
+            <th (click)="sortBy('adjq scoring rating')"  *ngIf="selectedViewMode === 'Rating'">Scoring                     
+              <span  *ngIf="sortKey === 'adjq scoring rating'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'adjq scoring rating'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('adjq shotcreator tree rating')"  *ngIf="selectedViewMode === 'Rating'">Shot Tree                     
+              <span  *ngIf="sortKey === 'adjq shotcreator tree rating'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'adjq shotcreator tree rating'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('adjq shooting rating')"  *ngIf="selectedViewMode === 'Rating'">Shooting                     
+              <span  *ngIf="sortKey === 'adjq shooting rating'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'adjq shooting rating'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('adjq playmaking rating')"  *ngIf="selectedViewMode === 'Rating'">Playmaking                     
+              <span  *ngIf="sortKey === 'adjq playmaking rating'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'adjq playmaking rating'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('adjq rebounding rating')"  *ngIf="selectedViewMode === 'Rating'">REB                     
+              <span  *ngIf="sortKey === 'adjq rebounding rating'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'adjq rebounding rating'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('adjq off rating')"  *ngIf="selectedViewMode === 'Rating'">OFF                     
+              <span  *ngIf="sortKey === 'adjq off rating'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'adjq off rating'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('adjq def rating')"  *ngIf="selectedViewMode === 'Rating'">DEF                     
+              <span  *ngIf="sortKey === 'adjq def rating'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'adjq def rating'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('adjq ovrl rating')"  *ngIf="selectedViewMode === 'Rating'">Overall                     
+              <span  *ngIf="sortKey === 'adjq ovrl rating'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'adjq ovrl rating'" class="clickable arrow-icon">▼</span>
+            </th>           
+            <th (click)="sortBy('potential adjusted ovrl rating')"  *ngIf="selectedViewMode === 'Rating'">Potential Overall                    
+              <span  *ngIf="sortKey === 'potential adjusted ovrl rating'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'potential adjusted ovrl rating'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('potential rating (l class improvement formula)')"  *ngIf="selectedViewMode === 'Rating'">Potential                     
+              <span  *ngIf="sortKey === 'potential rating (l class improvement formula)'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'potential rating (l class improvement formula)'" class="clickable arrow-icon">▼</span>
+            </th>
+
+            <th (click)="sortBy('hand length (inches)')"  *ngIf="selectedViewMode === 'Measurement'">Hand Length                     
+              <span  *ngIf="sortKey === 'hand length (inches)'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'hand length (inches)'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('hand width (inches)')"  *ngIf="selectedViewMode === 'Measurement'">Hand Width                    
+              <span  *ngIf="sortKey === 'hand width (inches)'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'hand width (inches)'" class="clickable arrow-icon">▼</span>
+            </th>
+            <th (click)="sortBy('three quarter sprint (seconds)')"  *ngIf="selectedViewMode === 'Measurement'">3Q Sprint                     
+              <span  *ngIf="sortKey === 'three quarter sprint (seconds)'" class="clickable arrow-icon">
+                  <span  *ngIf="sortReverse">▼</span>
+                  <span  *ngIf="!sortReverse">▲</span>
+              </span>
+              <span *ngIf="sortKey !== 'three quarter sprint (seconds)'" class="clickable arrow-icon">▼</span>
+            </th>
+
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let player of filteredPlayers | slice:0:500">
+            <td>
+                <!--{{ player.name }}-->
+                <a href="#" (click)="getPlayerCard($event, player)" class="player-name">
+                  {{ player.name }}
+                </a>
+                <button [disabled]="isComparingPlayers" class="small-button" (click)="comparePlayerOff(player)">Off</button>
+                <button [disabled]="isComparingPlayers" class="small-button" (click)="comparePlayerDef(player)">Def</button>
+            </td>
+            <!--<td>{{ player.school }}</td>-->
+            <td>{{ player['position 1'] }}</td>
+            <td>{{ player.playstyle }}</td>
+            <td>{{ player.season }}</td>
+            <td>{{ player.class }}</td>
+            <td>{{ player.height }}</td>
+            <td>{{ player.wingspan }}</td>
+            <td>{{ player['max vertical leap (inches)'] }}</td>
+            <!--<td>{{ player['positional length (h ws) inches'] }}</td>   
+            <td>{{ player.weight }}</td>-->           
+            <td>{{ player['drafted #'] }}</td>
+            <td *ngIf="selectedViewMode === 'Basic' || selectedViewMode === 'Advance' || selectedViewMode === 'Percentile' || selectedViewMode === 'Rating'">{{ player.g }}</td>
+            <td *ngIf="selectedViewMode === 'Basic' || selectedViewMode === 'Advance' || selectedViewMode === 'Percentile' || selectedViewMode === 'Rating'">{{ player.min }}</td> 
+            <td *ngIf="selectedViewMode === 'Basic'">{{ player.pts }}</td>
+            <td *ngIf="selectedViewMode === 'Basic'">{{ player.trb }}</td>
+            <td *ngIf="selectedViewMode === 'Basic'">{{ player.ast }}</td>
+            <td *ngIf="selectedViewMode === 'Basic'">{{ player['ast/tov'] }}</td>
+            <td *ngIf="selectedViewMode === 'Basic'">{{ player.stl }}</td>
+            <td *ngIf="selectedViewMode === 'Basic'">{{ player.blk }}</td>
+            <td *ngIf="selectedViewMode === 'Basic'">{{ player['stops per game'] }}</td>
+            <td *ngIf="selectedViewMode === 'Basic'">{{ player['fg%'] }}</td>
+            <td *ngIf="selectedViewMode === 'Basic'">{{ player['3fg%'] }}</td>
+            <td *ngIf="selectedViewMode === 'Basic'">{{ player['mid fg%'] }}</td>
+            <td *ngIf="selectedViewMode === 'Basic'">{{ player['ft%'] }}</td>
+            <td *ngIf="selectedViewMode === 'Basic'">{{ player['3pm per game'] }}</td>
+            <td *ngIf="selectedViewMode === 'Basic'">{{ player['mid per game'] }}</td>
+            <td *ngIf="selectedViewMode === 'Basic'">{{ player['# dunks'] }}</td>
+
+            <td *ngIf="selectedViewMode === 'Basic'">{{ player['dbl dbl'] }}</td>
+            <td *ngIf="selectedViewMode === 'Basic'">{{ player['tpl dbl'] }}</td>
+            <td *ngIf="selectedViewMode === 'Basic'">{{ player['40 pts'] }}</td>
+            <td *ngIf="selectedViewMode === 'Basic'">{{ player['20 reb'] }}</td>
+            <td *ngIf="selectedViewMode === 'Basic'">{{ player['20 ast'] }}</td>
+
+            <!-- Advance -->
+
+            <td *ngIf="selectedViewMode === 'Advance'">{{ player['ts%'] }}</td>
+            <td *ngIf="selectedViewMode === 'Advance'">{{ player['efg%'] }}</td>
+            <td *ngIf="selectedViewMode === 'Advance'">{{ player['off rtg'] }}</td>
+            <td *ngIf="selectedViewMode === 'Advance'">{{ player['def rtg'] }}</td>
+            <td *ngIf="selectedViewMode === 'Advance'">{{  player.obpm }}</td>
+            <td *ngIf="selectedViewMode === 'Advance'">{{  player.dbpm }}</td>
+            <td *ngIf="selectedViewMode === 'Advance'">{{  player.bpm }}</td>
+            <td *ngIf="selectedViewMode === 'Advance'">{{  player.per }}</td>
+
+            <td *ngIf="selectedViewMode === 'Percentile'">{{ player['bpm percentile'] }}</td>
+            <td *ngIf="selectedViewMode === 'Percentile'">{{ player['ts percentile'] }}</td>
+            <td *ngIf="selectedViewMode === 'Percentile'">{{ player['efg percentile'] }}</td>
+            <td *ngIf="selectedViewMode === 'Percentile'">{{ player['off rating percentile'] }}</td>
+            <td *ngIf="selectedViewMode === 'Percentile'">{{ player['def rating percentile'] }}</td>
+            <td *ngIf="selectedViewMode === 'Percentile'">{{ player['usg percentile'] }}</td>
+            <td *ngIf="selectedViewMode === 'Percentile'">{{ player['points 40 percentile'] }}</td>
+            <td *ngIf="selectedViewMode === 'Percentile'">{{ player['o reb 40 percentile'] }}</td>
+            <td *ngIf="selectedViewMode === 'Percentile'">{{ player['d reb 40 percentile'] }}</td>
+            <td *ngIf="selectedViewMode === 'Percentile'">{{ player['assist 40 percentile'] }}</td>
+            <td *ngIf="selectedViewMode === 'Percentile'">{{ player['to percentile'] }}</td>
+            <td *ngIf="selectedViewMode === 'Percentile'">{{ player['steal 40 percentile'] }}</td>
+            <td *ngIf="selectedViewMode === 'Percentile'">{{ player['block 40 percentile'] }}</td>
+            <td *ngIf="selectedViewMode === 'Percentile'">{{ player['stops 40 percentile'] }}</td>
+            <td *ngIf="selectedViewMode === 'Percentile'">{{ player['ftr percentile'] }}</td>
+            <td *ngIf="selectedViewMode === 'Percentile'">{{ player['3pm 40 percentile'] }}</td>
+            <td *ngIf="selectedViewMode === 'Percentile'">{{ player['mid 40 percentile'] }}</td>
+            <td *ngIf="selectedViewMode === 'Percentile'">{{ player['close shot 40 percentile'] }}</td>
+            <td *ngIf="selectedViewMode === 'Percentile'">{{ player['dunks 40 percentile'] }}</td>
+
+            <!-- Per 40 -->
+           
+            <td *ngIf="selectedViewMode === 'Per 40'">{{ player['pts 40'] }}</td>
+            <td *ngIf="selectedViewMode === 'Per 40'">{{ player['treb 40'] }}</td>
+            <td *ngIf="selectedViewMode === 'Per 40'">{{ player['oreb 40'] }}</td>
+            <td *ngIf="selectedViewMode === 'Per 40'">{{ player['dreb 40'] }}</td>
+            <td *ngIf="selectedViewMode === 'Per 40'">{{ player['ast 40'] }}</td>
+            <td *ngIf="selectedViewMode === 'Per 40'">{{ player['stl 40'] }}</td>
+            <td *ngIf="selectedViewMode === 'Per 40'">{{ player['blk 40'] }}</td>
+            <td *ngIf="selectedViewMode === 'Per 40'">{{ player['stops 40'] }}</td>
+            <td *ngIf="selectedViewMode === 'Per 40'">{{ player['3pm 40'] }}</td>
+            <td *ngIf="selectedViewMode === 'Per 40'">{{ player['mid made 40'] }}</td>
+            <td *ngIf="selectedViewMode === 'Per 40'">{{ player['close shot 40'] }}</td>
+            <td *ngIf="selectedViewMode === 'Per 40'">{{ player['dunks 40'] }}</td> 
+
+            <!-- Rating -->
+
+            <td *ngIf="selectedViewMode === 'Rating'">{{ player['adjq scoring rating'] }}</td>
+            <td *ngIf="selectedViewMode === 'Rating'">{{ player['adjq shotcreator tree rating'] }}</td>
+            <td *ngIf="selectedViewMode === 'Rating'">{{ player['adjq shooting rating'] }}</td>
+            <td *ngIf="selectedViewMode === 'Rating'">{{ player['adjq playmaking rating'] }}</td>
+            <td *ngIf="selectedViewMode === 'Rating'">{{ player['adjq rebounding rating'] }}</td>
+            <td *ngIf="selectedViewMode === 'Rating'">{{ player['adjq off rating'] }}</td>
+            <td *ngIf="selectedViewMode === 'Rating'">{{ player['adjq def rating'] }}</td>
+            <td *ngIf="selectedViewMode === 'Rating'">{{ player['adjq ovrl rating'] }}</td>
+            <td *ngIf="selectedViewMode === 'Rating'">{{ player['potential adjusted ovrl rating'] }}</td>
+            <td *ngIf="selectedViewMode === 'Rating'">{{ player['potential rating (l class improvement formula)'] }}</td>           
+
+            <!--Measurement-->
+            
+            <td *ngIf="selectedViewMode === 'Measurement'">{{ player['hand length (inches)'] }}</td>
+            <td *ngIf="selectedViewMode === 'Measurement'">{{ player['hand width (inches)'] }}</td>
+            <td *ngIf="selectedViewMode === 'Measurement'">{{ player['three quarter sprint (seconds)'] }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    </div>
+</div>

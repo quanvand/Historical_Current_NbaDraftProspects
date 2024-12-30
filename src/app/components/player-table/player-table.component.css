@@ -1,0 +1,400 @@
+
+.card {
+  border: 1px solid #ccc; /* Card border */
+  border-radius: 8px; /* Rounded corners */
+  padding: 10px; /* Padding inside the card */
+  background-color: #f7e9e9; /* Light background color */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
+
+.card-header {
+  margin-bottom: 16px; /* Space between the dropdown and table */
+}
+
+.card-content {
+  overflow-x: auto; /* Add horizontal scrolling if needed */
+}
+
+
+.fixTableHead {
+  overflow-y: auto;
+  height: 350px;
+}
+
+.fixTableHead thead th {
+  position: sticky;
+  top: 0;
+  z-index: 3; /* Default for all headers */
+  background-color: #2AA483; /* Match the background color from your image */
+  color: white; /* Set the font color to white */
+  font-family: sans-serif;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  border-spacing: 0; /* Ensure no extra space between cells */
+  width:auto;
+}
+
+th {
+  font-size: 14px !important;
+  background: #ABDD93; /* Default header background color */
+}
+
+th, td {
+  font-size: 13px;
+  box-sizing: border-box; /* Includes padding and border in the cell width */
+  padding: 4px 8px; /* Adjust as needed */
+  overflow: hidden; /* Prevent text from overflowing */
+  text-overflow: ellipsis; /* Add ellipsis for overflowing text */
+  white-space: nowrap; /* Prevent wrapping of text */
+  text-align: left;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #eeecec; /* Light gray for even rows */
+}
+
+tbody tr:nth-child(odd) {
+  background-color: #ffffff; /* White for odd rows */
+}
+
+
+/* Freeze the first column with alternating row colors */
+tbody tr:nth-child(even) td:first-child {
+  background-color: #eeecec;
+}
+
+tbody tr:nth-child(odd) td:first-child {
+  background-color: #ffffff;
+}
+
+/* Freeze the second column with alternating row colors */
+tbody tr:nth-child(even) td:nth-child(2) {
+  background-color: #eeecec;
+}
+
+tbody tr:nth-child(odd) td:nth-child(2) {
+  background-color: #ffffff;
+}
+
+/* Freeze the third column with alternating row colors */
+tbody tr:nth-child(even) td:nth-child(3) {
+  background-color: #eeecec;
+}
+
+tbody tr:nth-child(odd) td:nth-child(3) {
+  background-color: #ffffff;
+}
+
+tbody tr:nth-child(even) td:nth-child(4) {
+  background-color: #eeecec;
+}
+
+tbody tr:nth-child(odd) td:nth-child(4) {
+  background-color: #ffffff;
+}
+
+tbody tr:nth-child(even) td:nth-child(5) {
+  background-color: #eeecec;
+}
+
+tbody tr:nth-child(odd) td:nth-child(5) {
+  background-color: #ffffff;
+}
+
+.freeze-first-row tbody tr:first-child {
+  position: sticky;
+  top: 24.5px; /* Adjust this value to avoid overlap with the header */
+  z-index: 7;
+  background-color: #f7e9e9; /* Keep the row background consistent */
+  box-shadow: 0 1.5px 0 green;
+}
+
+/* Freeze the first column header */
+th:first-child, td:first-child {
+  position: sticky;
+  top: 0; /* Keeps the header fixed during vertical scrolling */
+  left: 0; /* Aligns the first column correctly */
+  z-index: 3; /* Ensures the first column header stays above content */
+  background-color: #ABDD93; /* Matches header background color */
+  font-weight: bold;
+  min-width: 230px; /* Sets a minimum width for the first column */
+  max-width: 230px; /* Sets a maximum width for the first column */
+  overflow: hidden; /* Ensures content doesn't overflow */
+  text-overflow: ellipsis; /* Adds '...' for overflowing text */
+  white-space: nowrap; /* Prevents text from wrapping to a new line */
+}
+
+/* Freeze the second column header */
+th:nth-child(2), td:nth-child(2) {
+  position: sticky;
+  top: 0; /* Ensure it stays frozen when scrolling vertically */
+  left: 230px; /* Adjust based on the width of the first column */
+  z-index: 3; /* Ensure the second column header stays above content */
+  background-color: #ABDD93; /* Match header background color */
+}
+
+/* Freeze the third column header */
+th:nth-child(3), td:nth-child(3) {
+  position: sticky;
+  top: 0; /* Ensure it stays frozen when scrolling vertically */
+  left: 301px; /* Adjust based on the cumulative width of the first two columns */
+  z-index: 3; /* Ensure the third column header stays above content */
+  background-color: #ABDD93; /* Match header background color */
+}
+
+th:nth-child(4), td:nth-child(4) {
+  position: sticky;
+  top: 0; /* Ensure it stays frozen when scrolling vertically */
+  left: 378px; /* Adjust based on the cumulative width of the first two columns */
+  z-index: 3; /* Ensure the third column header stays above content */
+  background-color: #ABDD93; /* Match header background color */
+}
+
+th:nth-child(5), td:nth-child(5) {
+  position: sticky;
+  top: 0; /* Ensure it stays frozen when scrolling vertically */
+  left: 457.5px; /* Adjust based on the cumulative width of the first two columns */
+  z-index: 3; /* Ensure the third column header stays above content */
+  background-color: #ABDD93; /* Match header background color */
+}
+
+/* Create a pseudo-element for consistent border effect 4th column line freeze*/
+td:nth-child(5)::after,
+th:nth-child(5)::after {
+  content: ''; /* Pseudo-element to simulate a border */
+  position: absolute;
+  top: 0;
+  left:52px;
+  bottom: 0;
+  width: 101px; /* Match the border width */
+  background-color: black; /* Border color */
+  z-index: 4; /* Ensure it stays on top */
+}
+
+
+
+/* Ensure intersection of header and frozen columns works */
+.fixTableHead thead th:first-child {
+  z-index: 6; /* Highest priority for the top-left corner cell */
+  background-color: #2AA483; /* Match the background color from your image */
+  color: white; /* Set the font color to white */
+  font-family: sans-serif;
+}
+
+.fixTableHead thead th:nth-child(2) {
+  z-index: 5; /* Ensure the second column header stays above other rows */
+  background-color: #2AA483; /* Match the background color from your image */
+  color: white; /* Set the font color to white */
+  font-family: sans-serif;
+}
+
+.fixTableHead thead th:nth-child(3) {
+  z-index: 5; /* Ensure the third column header stays above other rows */
+  background-color: #2AA483; /* Match the background color from your image */
+  color: white; /* Set the font color to white */
+  font-family: sans-serif; 
+}
+
+.fixTableHead thead th:nth-child(4) {
+  z-index: 5; /* Ensure the third column header stays above other rows */
+  background-color: #2AA483; /* Match the background color from your image */
+  color: white; /* Set the font color to white */
+  font-family: sans-serif; 
+}
+
+.fixTableHead thead th:nth-child(5) {
+  z-index: 5; /* Ensure the third column header stays above other rows */
+  background-color: #2AA483; /* Match the background color from your image */
+  color: white; /* Set the font color to white */
+  font-family: sans-serif; 
+}
+
+
+/* Add hover effect for entire table rows */
+tbody tr:hover {
+  background-color: rgba(0, 128, 128, 0.2); /* Light teal overlay for the entire row */
+  z-index: 1;
+}
+
+/* Highlight the first column on hover */
+tbody tr:hover td:first-child {
+  background-color: #addcf0; /* Slightly darker teal for the first column */
+  z-index: 2;
+}
+
+/* Highlight the second column on hover */
+tbody tr:hover td:nth-child(2) {
+  background-color: #addcf0; /* Slightly darker teal for the first column */
+  z-index: 2;
+}
+
+/* Highlight the third column on hover */
+tbody tr:hover td:nth-child(3) {
+  background-color: #addcf0; /* Slightly darker teal for the first column */
+  z-index: 2;
+}
+
+/* Highlight the third column on hover */
+tbody tr:hover td:nth-child(4) {
+  background-color: #addcf0; /* Slightly darker teal for the first column */
+  z-index: 2;
+}
+
+tbody tr:hover td:nth-child(5) {
+  background-color: #addcf0; /* Slightly darker teal for the first column */
+  z-index: 2;
+}
+
+/* Ensure text inside the row and columns remains visible and legible on hover */
+tbody tr:hover td {
+  color: black; /* Adjust the text color if needed */
+}
+
+.search-container {
+  margin-bottom: 20px; /* Adjust the value as needed */
+}
+
+.divider {
+  border: none; /* Remove default border */
+  border-top: 1px solid #ccc; /* Set the divider's thickness and color */
+  margin-bottom: 5px;
+}
+
+.spinner-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.spinner {
+  --d:22px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  color: #25b09b;
+  box-shadow: 
+    calc(1*var(--d))      calc(0*var(--d))     0 0,
+    calc(0.707*var(--d))  calc(0.707*var(--d)) 0 1px,
+    calc(0*var(--d))      calc(1*var(--d))     0 2px,
+    calc(-0.707*var(--d)) calc(0.707*var(--d)) 0 3px,
+    calc(-1*var(--d))     calc(0*var(--d))     0 4px,
+    calc(-0.707*var(--d)) calc(-0.707*var(--d))0 5px,
+    calc(0*var(--d))      calc(-1*var(--d))    0 6px;
+  animation: l27 .4s infinite steps(8);
+}
+@keyframes l27 {
+  100% {transform: rotate(1turn)}
+}
+
+.arrow-icon {
+  font-size: 10px;
+  font-weight: 300; /* Adjust to make it less bold */
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.small-button {
+  width: 12%; /* Adjust width */
+  padding: 1px 2px; /* Adjust padding for smaller size */
+  font-size: 10px; /* Adjust text size */
+  margin: 3px; /* Optional spacing between buttons */
+  line-height: 1; /* Ensure compact height */
+}
+
+
+.player-name {
+  color: black;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+
+.dropdown-container {
+  position: relative;
+}
+
+.dropdown {
+  position: relative;
+  border-width: .5px;
+  border-style: solid;
+  border-color: light-dark;
+  border-radius: 2px;
+}
+
+.dropdown-toggle {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  cursor: pointer;
+  text-align: left;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: -50px;
+  width: 220%;
+  max-height: 100px;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  
+  
+  background-color: #fff;
+  z-index: 1000;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  font-size: 12px;
+
+}
+
+.dropdown-item {
+  padding: 2px;
+  display: flex;
+  align-items: center;
+}
+
+.dropdown-item input[type='checkbox'] {
+  margin-right: 8px;
+}
+
+.dropdown-item label {
+  margin: 0;
+}
+
+/* CSS 
+.button-41 {
+  background-color: initial;
+  background-image: linear-gradient(-180deg, #00D775, #00BD68);
+  border-radius: 5px;
+  box-shadow: rgba(0, 0, 0, 0.1) 0 2px 4px;
+  color: #FFFFFF;
+  cursor: pointer;
+  display: inline-block;
+  font-family: Inter,-apple-system,system-ui,Roboto,"Helvetica Neue",Arial,sans-serif;
+  outline: 0;
+  overflow: hidden;
+  font-size: 8px;
+  pointer-events: auto;
+  position: relative;
+  text-align: center;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  white-space: nowrap;
+  width: 100%;
+  height:50%;
+  z-index: 9;
+  border: 0;
+}*/
+
