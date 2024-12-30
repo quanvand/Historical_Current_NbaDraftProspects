@@ -87,8 +87,7 @@
             "styles": [
               "src/styles.css"
             ],
-            "scripts": [],
-            "baseHref": "./"
+            "scripts": []
           }
         }
       }
