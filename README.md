@@ -5,6 +5,8 @@ Data has already been webscraped from Barttorvik and RealGM, dating back to 2010
 
 This project will query [from a private database], these already-scaped ncaa player records and surface it on a data table. 
 
+- in the CLI - use 'ng serve' to run the Angular App
+then open 'http://localhost:4200/' in your browser.
 
 
 player.models file
