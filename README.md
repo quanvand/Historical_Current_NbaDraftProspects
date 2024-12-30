@@ -7,7 +7,7 @@ This project will query [from a private database], these already-scaped ncaa pla
 
 - in the CLI - use 'ng serve' to run the Angular App
 then open 'http://localhost:4200/' in your browser.
-
+ 
 
 player.models file
   - holds all the fields related to a Ncaa college player's fields.
